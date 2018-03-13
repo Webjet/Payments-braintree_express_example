@@ -4,6 +4,8 @@ var express = require('express');
 var braintree = require('braintree');
 var router = express.Router(); // eslint-disable-line new-cap
 var gateway = require('../lib/gateway');
+var client1 = require('node-rest-client').Client;
+var client = new client1();
 
 var TRANSACTION_SUCCESS_STATUSES = [
   braintree.Transaction.Status.Authorizing,
@@ -52,8 +54,9 @@ router.get('/', function (req, res) {
 });
 
 router.get('/checkouts/new', function (req, res) {
-  gateway.clientToken.generate({}, function (err, response) {
-    res.render('checkouts/new', {clientToken: response.clientToken, messages: req.flash('error')});
+  client.get('http://devservices.webjet.com.au/api/payments/braintreeservice/token', function (data) {
+    console.log(data);
+    res.render('checkouts/new', {clientToken: data.toString(), messages: req.flash('error')});
   });
 });
 
@@ -71,22 +74,32 @@ router.post('/checkouts', function (req, res) {
   var transactionErrors;
   var amount = req.body.amount; // In production you should not take amounts directly from clients
   var nonce = req.body.payment_method_nonce;
-
-  gateway.transaction.sale({
+  var request = {
     amount: amount,
-    paymentMethodNonce: nonce,
-    options: {
-      submitForSettlement: true
-    }
-  }, function (err, result) {
-    if (result.success || result.transaction) {
-      res.redirect('checkouts/' + result.transaction.id);
+    nonce: nonce
+  };
+  var myheader = {'Content-Type': 'application/json'};
+
+  var args = {
+    data: request,
+    headers: myheader
+  };
+  
+  client.post('https://devservices.webjet.com.au/api/payments/braintreeservice/transaction', args, function (data, result) {
+    if (result.statusCode === 200) {
+      if (data.isSuccess) {
+        res.redirect('checkouts/' + data.transactionId);
+      } else {
+        transactionErrors = data.errors;
+        req.flash('error', {msg: formatErrors(transactionErrors)});
+        res.redirect('checkouts/new');
+      }
     } else {
-      transactionErrors = result.errors.deepErrors();
-      req.flash('error', {msg: formatErrors(transactionErrors)});
+      req.flash('error', {msg: 'status code' + result.statusCode});
       res.redirect('checkouts/new');
     }
   });
+
 });
 
 module.exports = router;

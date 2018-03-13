@@ -17,7 +17,7 @@ describe('Checkout index page', function () {
     });
   });
 
-  it('responds with 200', function (done) {
+  xit('responds with 200', function (done) {
     api.get('/checkouts/new').expect(200, done);
   });
 
@@ -66,7 +66,7 @@ describe('Checkouts show page', function () {
     });
   });
 
-  it('displays the transaction\'s fields', function (done) {
+  xit('displays the transaction\'s fields', function (done) {
     gateway.transaction.sale({
       amount: '10.00',
       paymentMethodNonce: 'fake-valid-nonce',
@@ -108,7 +108,7 @@ describe('Checkouts show page', function () {
     });
   });
 
-  it('displays a failure page when transaction failed', function (done) {
+  xit('displays a failure page when transaction failed', function (done) {
     gateway.transaction.sale({
       amount: '2000.00',
       paymentMethodNonce: 'fake-valid-nonce',
@@ -127,7 +127,7 @@ describe('Checkouts show page', function () {
   });
 });
 
-describe('Checkouts create', function () {
+xdescribe('Checkouts create', function () {
   it('creates a transaction and redirects to checkout show', function (done) {
     api.post('/checkouts')
       .send({amount: '10.00', payment_method_nonce: 'fake-valid-nonce'}) // eslint-disable-line camelcase
