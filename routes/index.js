@@ -7,6 +7,9 @@ var gateway = require('../lib/gateway');
 var client1 = require('node-rest-client').Client;
 var client = new client1();
 
+var tokenUrl = process.env.BT_TOKEN_URL || 'https://devservices.webjet.com.au/api/payments/braintreeservice/token';
+var transactionUrl = process.env.BT_TRANSACTION_URL || 'https://devservices.webjet.com.au/api/payments/braintreeservice/transaction';
+
 var TRANSACTION_SUCCESS_STATUSES = [
   braintree.Transaction.Status.Authorizing,
   braintree.Transaction.Status.Authorized,
@@ -54,7 +57,7 @@ router.get('/', function (req, res) {
 });
 
 router.get('/checkouts/new', function (req, res) {
-  client.get('http://devservices.webjet.co.nz/api/payments/braintreeservice/token', function (data) {
+  client.get(tokenUrl, function (data) {
 
     console.log(data);
     res.render('checkouts/new', {clientToken: data.toString(), messages: req.flash('error')});
@@ -86,7 +89,7 @@ router.post('/checkouts', function (req, res) {
     headers: myheader
   };
   
-  client.post('https://devservices.webjet.co.nz/api/payments/braintreeservice/transaction', args, function (data, result) {
+  client.post(transactionUrl, args, function (data, result) {
     if (result.statusCode === 200) {
       if (data.isSuccess) {
         res.redirect('checkouts/' + data.transactionId);
