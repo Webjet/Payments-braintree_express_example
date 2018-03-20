@@ -54,7 +54,8 @@ router.get('/', function (req, res) {
 });
 
 router.get('/checkouts/new', function (req, res) {
-  client.get('http://devservices.webjet.com.au/api/payments/braintreeservice/token', function (data) {
+  client.get('http://devservices.webjet.co.nz/api/payments/braintreeservice/token', function (data) {
+
     console.log(data);
     res.render('checkouts/new', {clientToken: data.toString(), messages: req.flash('error')});
   });
@@ -85,7 +86,7 @@ router.post('/checkouts', function (req, res) {
     headers: myheader
   };
   
-  client.post('https://devservices.webjet.com.au/api/payments/braintreeservice/transaction', args, function (data, result) {
+  client.post('https://devservices.webjet.co.nz/api/payments/braintreeservice/transaction', args, function (data, result) {
     if (result.statusCode === 200) {
       if (data.isSuccess) {
         res.redirect('checkouts/' + data.transactionId);
