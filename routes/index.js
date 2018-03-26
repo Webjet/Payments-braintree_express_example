@@ -10,6 +10,9 @@ var client = new client1();
 var tokenUrl = process.env.BT_TOKEN_URL || 'https://devservices.webjet.com.au/api/payments/braintreeservice/token';
 var transactionUrl = process.env.BT_TRANSACTION_URL || 'https://devservices.webjet.com.au/api/payments/braintreeservice/transaction';
 
+//var tokenUrl = process.env.BT_TOKEN_URL || 'http://localhost:9775/token';
+//var transactionUrl = process.env.BT_TRANSACTION_URL || 'http://localhost:9775/transaction';
+
 var TRANSACTION_SUCCESS_STATUSES = [
   braintree.Transaction.Status.Authorizing,
   braintree.Transaction.Status.Authorized,
@@ -91,11 +94,12 @@ router.post('/checkouts', function (req, res) {
   
   client.post(transactionUrl, args, function (data, result) {
     if (result.statusCode === 200) {
-      if (data.isSuccess) {
+      if (data.status === 'SUCCESS' || data.isSuccess) {
         res.redirect('checkouts/' + data.transactionId);
       } else {
-        transactionErrors = data.errors;
-        req.flash('error', {msg: formatErrors(transactionErrors)});
+        //transactionErrors = data.errors;
+        //req.flash('error', {msg: formatErrors(transactionErrors)});
+        req.flash('error', {msg: data.message});
         res.redirect('checkouts/new');
       }
     } else {
