@@ -103,7 +103,7 @@ router.post('/checkouts', function (req, res) {
         res.redirect('checkouts/new');
       }
     } else {
-      req.flash('error', {msg: 'status code' + result.statusCode});
+      req.flash('error', {msg: 'status code' + result.statusCode + ' | ' + 'message: ' + data.message});
       res.redirect('checkouts/new');
     }
   });
